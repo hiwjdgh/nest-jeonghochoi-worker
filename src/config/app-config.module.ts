@@ -6,6 +6,7 @@ import {
     LoggerModule,
     MailModule,
 } from '@jeonghochoi/core-worker';
+import { AppConfigFactory } from './app-config.factory';
 
 @Module({
     imports: [
@@ -13,7 +14,7 @@ import {
          * Core infra config
          * - env → zod 검증
          */
-        CoreConfigModule.forRoot(AppConfigSchema),
+        CoreConfigModule.forRoot(AppConfigFactory),
 
         /**
          * Infra modules
