@@ -82,10 +82,11 @@ WORKER_CONCURRENCY=5
 DATABASE_CONFIG={"instances":{"MAIN":{"dbms":"postgresql","host":"127.0.0.1","port":5432,"user":"worker","password":"worker","database":"worker_db","poolSize":10}}}
 LOGGER_CONFIG={"level":"info","pretty":true,"service":"nest-worker"}
 
-# ===== Mail Template =====
+# ===== Mail =====
+# 템플릿(.hbs) 경로
 MAIL_TEMPLATE_DIR=./templates/mail
 
-# ===== Mail Provider(smtp | ses) =====
+# 전송 provider(smtp | ses)
 MAIL_PROVIDER=smtp
 
 # SMTP 사용 시
@@ -134,6 +135,31 @@ FCM_AUTH_JSON_DIR=./secrets
 > - `FCM_AUTH_JSON_DIR` 하위에 `fcm_auth.json` 파일이 있어야 합니다.
 
 ---
+
+
+### MailClient 사용 예시
+
+`src/common/mail`의 `MailClient`는 HTTP client처럼 `register → use` 패턴으로 사용할 수 있습니다.
+
+```ts
+@Injectable()
+export class NotificationMailClient {
+    constructor(private readonly mailClient: MailClient) {
+        this.mailClient.register('notification', { transport: 'smtp' });
+    }
+
+    async sendWelcome(to: string, name: string): Promise<void> {
+        await this.mailClient.use('notification').send(
+            'welcome',
+            { name },
+            {
+                to,
+                subject: 'Welcome!',
+            },
+        );
+    }
+}
+```
 
 ## 🧠 Worker 동작 방식
 
