@@ -70,18 +70,68 @@ node dist/main.js
 
 ## ⚙️ 환경 변수
 
-```env
-REDIS_HOST=localhost
-REDIS_PORT=6379
+현재 코드 기준으로 필요한 `.env` 예시는 아래와 같습니다.
 
+```env
+# ===== App =====
+APP_NAME=nest-worker
+WORKER_NAME=payment
 WORKER_CONCURRENCY=5
 
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=worker
-DB_PASS=worker
-DB_NAME=worker_db
+# ===== Core Config(JSON) =====
+DATABASE_CONFIG={"instances":{"MAIN":{"dbms":"postgresql","host":"127.0.0.1","port":5432,"user":"worker","password":"worker","database":"worker_db","poolSize":10}}}
+LOGGER_CONFIG={"level":"info","pretty":true,"service":"nest-worker"}
+
+# ===== Mail Template =====
+MAIL_TEMPLATE_DIR=./templates/mail
+
+# ===== Mail Provider(smtp | ses) =====
+MAIL_PROVIDER=smtp
+
+# SMTP 사용 시
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=username
+SMTP_PASSWORD=password
+SMTP_FROM=no-reply@example.com
+
+# SES 사용 시
+SES_REGION=ap-northeast-2
+SES_ACCESS_KEY_ID=your-access-key
+SES_SECRET_ACCESS_KEY=your-secret-key
+SES_FROM=no-reply@example.com
+
+# ===== Optional Uploader(JSON) =====
+FTP_CONFIG={"host":"127.0.0.1","port":21,"user":"ftp-user","password":"ftp-pass","secure":false,"basePath":"/upload"}
+S3_CONFIG={"region":"ap-northeast-2","bucket":"your-bucket","accessKeyId":"AKIA...","secretAccessKey":"..."}
+
+# ===== Bizppurio Core =====
+BIZPPURIO_CORE_BASE_URL=https://core.example.com
+BIZPPURIO_CORE_GET_ALIMTALK_TEMPLATE_URI=/alimtalk/template
+BIZPPURIO_CORE_GET_ALIMTALK_TEMPLATES_URI=/alimtalk/templates
+BIZPPURIO_CORE_TIMEOUT=5000
+
+# ===== Bizppurio Message =====
+BIZPPURIO_MSG_BASE_URL=https://api.bizppurio.com
+BIZPPURIO_MSG_TOKEN_URI=/v1/token
+BIZPPURIO_MSG_SEND_URI=/v3/message
+BIZPPURIO_MSG_TIMEOUT=5000
+BIZPPURIO_MSG_ID=your-id
+BIZPPURIO_MSG_PASSWORD=your-password
+
+# ===== Government Korea API =====
+GOVERMENT_KOREA_DATA_BASE_URL=https://data.go.kr
+GOVERMENT_KOREA_DATA_TIMEOUT=5000
+
+# ===== FCM =====
+FCM_AUTH_JSON_DIR=./secrets
 ```
+
+> 참고
+> - `DATABASE_CONFIG`, `LOGGER_CONFIG`, `FTP_CONFIG`, `S3_CONFIG`는 JSON 문자열이어야 합니다.
+> - 메일은 `MAIL_PROVIDER` 값에 따라 `SMTP_*` 또는 `SES_*`를 설정하세요.
+> - `FCM_AUTH_JSON_DIR` 하위에 `fcm_auth.json` 파일이 있어야 합니다.
 
 ---
 
