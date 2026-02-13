@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PaymentRepository } from './payment.repository';
-import { KiccClient } from 'src/third-party/kicc/kicc.client';
-import { BizppurioClient } from 'src/third-party/bizppurio/bizppurio.client';
+import { KiccClient } from 'src/common/http/kicc/kicc.client';
+import { BizppurioMessageClient } from 'src/common/http/bizppurio/bizppurio.message.client';
 import { FcmClient } from 'src/common/http/fcm/fcm.client';
-import { NpayClient } from 'src/third-party/npay/npay.client';
+import { NpayClient } from 'src/common/http/npay/npay.client';
 import { PaymentPayload } from './payment.types';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class PaymentService {
 
     constructor(
         private readonly configService: ConfigService,
-        private readonly bizppurioClient: BizppurioClient,
+        private readonly bizppurioClient: BizppurioMessageClient,
         private readonly repo: PaymentRepository,
         private readonly fcmClient: FcmClient,
         private readonly kiccClient: KiccClient,
@@ -23,10 +23,10 @@ export class PaymentService {
 
     async handle(payload: PaymentPayload) {
         switch (payload.method) {
-            case 'CHAEVI_GUEST_CHARGING':
+            case 'FOO_GUEST_CHARGING':
                 this.payChaeviGuestCharging(payload);
                 break;
-            case 'CHAEVI_MEMBER_CHARGING':
+            case 'FOO_MEMBER_CHARGING':
                 this.payChaeviMemberCharging(payload);
                 break;
             case 'KECO_OUTBOUND_CHARGING':
@@ -38,7 +38,7 @@ export class PaymentService {
             case 'ECSP_OUTBOUND_CHARGING':
                 this.payEcspOutboundCharging(payload);
                 break;
-            case 'CHAEVI_CREDIT':
+            case 'FOO_CREDIT':
                 this.payCredit(payload);
                 break;
 
