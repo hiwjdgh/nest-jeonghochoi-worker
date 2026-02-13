@@ -2,32 +2,24 @@ import { z } from 'zod';
 import {
     DatabaseConfigSchema,
     FtpConfigSchema,
-    HttpConfigSchema,
     LoggerConfigSchema,
     S3ConfigSchema,
     SesConfigSchema,
     SmtpConfigSchema,
+    TemplateConfigSchema,
 } from '@jeonghochoi/core-worker';
 
 export const AppConfigSchema = z.object({
-    // Database
-    postgresql: DatabaseConfigSchema,
-
-    // Logger
+    database: DatabaseConfigSchema,
     logger: LoggerConfigSchema,
+    mailTemplateDir: TemplateConfigSchema,
 
-    // Http
-    http: HttpConfigSchema,
+    smtp: SmtpConfigSchema.optional(),
+    ses: SesConfigSchema.optional(),
 
-    // Mail
-    mailSmtp: SmtpConfigSchema.optional(),
-    mailSes: SesConfigSchema.optional(),
+    ftp: FtpConfigSchema.optional(),
+    s3: S3ConfigSchema.optional(),
 
-    // Uploder
-    ftpUploder: FtpConfigSchema.optional(),
-    s3Uploader: S3ConfigSchema.optional(),
-
-    // App
     app: z.object({
         name: z.string(),
         workerName: z.string(),

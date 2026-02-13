@@ -1,51 +1,56 @@
-import { ConfigService } from '@nestjs/config';
-import { AppConfigSchema, AppConfig } from './app.schema';
-import { CoreConfigFactory } from '@jeonghochoi/core-worker';
+import { CoreConfigFactory, loadEnv } from '@jeonghochoi/core-worker';
+import { AppConfig, AppConfigSchema } from './app.schema';
 
-export class AppConfigFactory implements CoreConfigFactory<AppConfig> {
-    constructor(private readonly config: ConfigService) {}
+const env = loadEnv();
 
-    schema = AppConfigSchema;
+function parseJson<T>(raw: string | undefined): T | undefined {
+    if (!raw) return undefined;
+    return JSON.parse(raw) as T;
+}
 
-    load(): unknown {
-        const mailProvider = this.config.get('MAIL_PROVIDER'); // smtp | ses
+export const AppConfigFactory: CoreConfigFactory<AppConfig> = {
+    schema: AppConfigSchema,
+    load: () => {
+        const mailProvider = env.MAIL_PROVIDER;
 
         return {
-            // ===== database =====
-            database: JSON.parse(
-                this.config.getOrThrow<string>('DATABASE_CONFIG'),
-            ),
+            database: parseJson(env.DATABASE_CONFIG),
+            logger: parseJson(env.LOGGER_CONFIG),
+            mailTemplateDir: {
+                templateDir: env.MAIL_TEMPLATE_DIR,
+            },
+            ftp: parseJson(env.FTP_CONFIG),
+            s3: parseJson(env.S3_CONFIG),
 
-            // ===== mail =====
             smtp:
                 mailProvider === 'smtp'
                     ? {
-                          host: this.config.getOrThrow('SMTP_HOST'),
-                          port: this.config.getOrThrow('SMTP_PORT'),
-                          secure: this.config.get('SMTP_SECURE') === 'true',
-                          user: this.config.getOrThrow('SMTP_USER'),
-                          password: this.config.getOrThrow('SMTP_PASSWORD'),
+                          host: env.SMTP_HOST,
+                          port: env.SMTP_PORT,
+                          secure: env.SMTP_SECURE === 'true',
+                          user: env.SMTP_USER,
+                          password: env.SMTP_PASSWORD,
+                          from: env.SMTP_FROM,
                       }
                     : undefined,
 
             ses:
                 mailProvider === 'ses'
                     ? {
-                          region: this.config.getOrThrow('SES_REGION'),
-                          accessKeyId:
-                              this.config.getOrThrow('SES_ACCESS_KEY_ID'),
-                          secretAccessKey: this.config.getOrThrow(
-                              'SES_SECRET_ACCESS_KEY',
-                          ),
+                          region: env.SES_REGION,
+                          credentials: {
+                              accessKeyId: env.SES_ACCESS_KEY_ID,
+                              secretAccessKey: env.SES_SECRET_ACCESS_KEY,
+                          },
+                          from: env.SES_FROM,
                       }
                     : undefined,
 
-            // ===== app =====
             app: {
-                name: this.config.getOrThrow('APP_NAME'),
-                workerName: this.config.getOrThrow('WORKER_NAME'),
-                concurrency: this.config.get('WORKER_CONCURRENCY'),
+                name: env.APP_NAME,
+                workerName: env.WORKER_NAME,
+                concurrency: env.WORKER_CONCURRENCY,
             },
         };
-    }
-}
+    },
+};
