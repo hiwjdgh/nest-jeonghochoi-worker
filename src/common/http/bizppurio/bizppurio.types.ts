@@ -1,20 +1,23 @@
+/** 비즈뿌리오 메세지 계정 정보 */
+export interface BizppurioMessageAccount {
+    account: string;
+    password: string;
+    senderKey: string;
+    companyTel: string;
+    refKey: string;
+}
+
+export type BizppurioAccount =
+    | BizppurioMessageAccount
+    | BizppurioOperationAccount;
+
+export type BizppurioAccountType = 'message' | 'operation';
+
 /**
  * 메세지 전송
  *
  */
 type BizppurioMessageType = 'at' | 'sms' | 'lms';
-
-interface BizppurioBaseSendRequest<
-    TType extends BizppurioMessageType,
-    TContent,
-> {
-    account: string;
-    type: TType;
-    from: string;
-    to: string;
-    refkey: string;
-    content: TContent;
-}
 
 export interface AlimtalkContent {
     templatecode: string;
@@ -39,20 +42,26 @@ export interface LmsContent {
     message: string;
 }
 
-export interface BizppurioAlimtalkSendRequest extends BizppurioBaseSendRequest<
-    'at',
-    { at: AlimtalkContent }
-> {}
+export interface BizppurioAlimtalkSendRequest {
+    to: string;
+    content: {
+        at: AlimtalkContent;
+    };
+}
 
-export interface BizppurioSmsSendRequest extends BizppurioBaseSendRequest<
-    'sms',
-    { sms: SmsContent }
-> {}
+export interface BizppurioSmsSendRequest {
+    to: string;
+    content: {
+        sms: SmsContent;
+    };
+}
 
-export interface BizppurioLmsSendRequest extends BizppurioBaseSendRequest<
-    'lms',
-    { lms: LmsContent }
-> {}
+export interface BizppurioLmsSendRequest {
+    to: string;
+    content: {
+        lms: LmsContent;
+    };
+}
 
 export interface BizppurioTokenResponse {
     type: string;
@@ -68,28 +77,25 @@ export interface BizppurioSendResponse {
 }
 
 /**
- * 코어
- *
+ * 운영
  */
-
-type BizppurioCoreSenderKeyType = 'S' | 'G';
-
-export interface BizppurioCoreGetAlimtalkTemplateRequest {
+/** 비즈뿌리오 운영 계정 정보 */
+export interface BizppurioOperationAccount {
     bizId: string;
     apiKey: string;
     senderKey: string;
-    senderKeyType?: BizppurioCoreSenderKeyType;
+    senderKeyType?: BizppurioOperationSenderKeyType;
+}
+
+type BizppurioOperationSenderKeyType = 'S' | 'G';
+
+export interface AlimtalkTemplateRequest {
     templateCode: string;
 }
 
-export interface BizppurioCoreGetAlimtalkTemplatesRequest {
-    bizId: string;
-    apiKey: string;
-    senderKey: string;
-    senderKeyType?: BizppurioCoreSenderKeyType;
-}
+export interface AlimtalkTemplatesRequest {}
 
-export interface BizppurioCoreResponse {
+export interface BizppurioOperationResponse {
     code: string;
     message: string;
     data: any;

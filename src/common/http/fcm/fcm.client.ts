@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { FcmTokenRequest, FcmTopicRequest } from './fcm.types';
 import path from 'path';
@@ -6,32 +6,40 @@ import { readFileSync } from 'fs';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class FcmClient implements OnModuleInit {
+export class FcmClient {
+    private apps = new Map<string, admin.app.App>();
+
     constructor(private readonly config: ConfigService) {}
+    async getAccount(key: string): Promise<any> {
+        const app = this.apps.get(key);
 
-    onModuleInit() {
-        if (admin.apps.length > 0) return;
+        if (!app) {
+            const jsonPath =
+                this.config.getOrThrow<Record<string, any>>('FCM_CLIENTS')[key];
 
-        const jsonPath = this.config.getOrThrow('FCM_AUTH_JSON_DIR');
+            const serviceAccountPath = path.resolve(jsonPath, 'fcm_auth.json');
 
-        const serviceAccountPath = path.resolve(jsonPath, 'fcm_auth.json');
+            const serviceAccount = JSON.parse(
+                readFileSync(serviceAccountPath, 'utf8'),
+            );
 
-        const serviceAccount = JSON.parse(
-            readFileSync(serviceAccountPath, 'utf8'),
-        );
+            const app = admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount),
+            });
 
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
-        });
+            this.apps.set(key, app);
+        }
+
+        return this.apps.get(key);
     }
 
-    async sendToTokens(payload: FcmTokenRequest) {
+    async sendToTokens(account: string, payload: FcmTokenRequest) {
         return admin.messaging().sendEachForMulticast({
             ...payload,
         });
     }
 
-    async sendToTopic(payload: FcmTopicRequest) {
+    async sendToTopic(account: string, payload: FcmTopicRequest) {
         return admin.messaging().send({
             ...payload,
         });

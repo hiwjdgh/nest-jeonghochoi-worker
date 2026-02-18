@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@jeonghochoi/core-worker';
-import { BizppurioMessageClient } from './bizppurio.message.client';
-import { BizppurioCoreClient } from './bizppurio.core.client';
+import { MessageClient } from './clients/message.client';
+import { OperationClient } from './clients/operation.client';
+import { BizppurioClient } from './bizppurio.client';
 
 @Module({
     imports: [HttpModule],
-    providers: [BizppurioMessageClient, BizppurioCoreClient],
-    exports: [BizppurioMessageClient, BizppurioCoreClient],
+    providers: [MessageClient, OperationClient, BizppurioClient],
+    exports: [BizppurioClient],
 })
 export class BizppurioModule {}

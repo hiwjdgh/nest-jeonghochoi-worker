@@ -1,16 +1,9 @@
-import {
-    FileColumn,
-    FileFormat,
-    FileStyle,
-    UploadTarget,
-} from 'src/common/file/file.types';
-
 /** 지원하는 메소드 */
 export type ExportMethod = 'CSMS_EXPORT';
 
 /* ===== payload 타입 (JobPayloadSchemaMap과 동일해야 함) ===== */
 export interface ExportPayload {
-    method: ExportMethod;
+    /*    method: ExportMethod;
 
     file: {
         fileName: string;
@@ -38,5 +31,5 @@ export interface ExportPayload {
             to: string | string[];
             cc?: string | string[];
         };
-    };
+    }; */
 }
